@@ -1,0 +1,120 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff6b35;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid #0f3460;
+}
+
+.card h2 {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card .value {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.card .unit {
+  font-size: 1rem;
+  color: #888;
+}
+
+.temp { color: #ff6b35; }
+.target { color: #4ade80; }
+.power { color: #60a5fa; }
+.time { color: #fbbf24; }
+
+.status {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.status.heating { background: #7c2d12; color: #fdba74; }
+.status.cooling { background: #1e3a5f; color: #93c5fd; }
+.status.ready { background: #14532d; color: #86efac; }
+.status.off { background: #333; color: #888; }
+
+.history {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #0f3460;
+}
+
+.history h2 {
+  margin-bottom: 1rem;
+  color: #ff6b35;
+}
+
+.history ul {
+  list-style: none;
+}
+
+.history li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #0f3460;
+  display: flex;
+  justify-content: space-between;
+}
+
+.history li:last-child {
+  border-bottom: none;
+}
+
+.history .time-stamp {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #888;
+}
