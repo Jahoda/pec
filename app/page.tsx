@@ -1,6 +1,5 @@
-"use client"
-
-import { useState, useEffect, useCallback } from "react"
+// Server Component - žádný JS se neposílá klientovi pro tuto část
+// Data se renderují na serveru, klient dostane hotové HTML
 
 interface PecData {
   currentTemp: number
@@ -8,12 +7,6 @@ interface PecData {
   status: "off" | "heating" | "cooling" | "ready"
   power: number
   runningTime: number
-  timestamp: string
-}
-
-interface HistoryEntry {
-  temp: number
-  time: string
 }
 
 const statusLabels = {
@@ -30,54 +23,19 @@ function formatTime(seconds: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
 }
 
+// Simulovaná data - v reálné aplikaci by přišla z databáze nebo přímo z HW
+function getPecData(): PecData {
+  return {
+    currentTemp: 847,
+    targetTemp: 850,
+    status: "ready",
+    power: 12,
+    runningTime: 3725,
+  }
+}
+
 export default function Home() {
-  const [data, setData] = useState<PecData | null>(null)
-  const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [targetInput, setTargetInput] = useState("850")
-
-  const fetchData = useCallback(async () => {
-    try {
-      const res = await fetch("/api/pec")
-      const json = await res.json()
-      setData(json)
-      setHistory((prev) => {
-        const entry = {
-          temp: json.currentTemp,
-          time: new Date().toLocaleTimeString("cs-CZ"),
-        }
-        return [entry, ...prev].slice(0, 5)
-      })
-    } catch (e) {
-      console.error("Chyba při načítání dat:", e)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchData()
-    const interval = setInterval(fetchData, 2000)
-    return () => clearInterval(interval)
-  }, [fetchData])
-
-  const handleAction = async (action: "start" | "stop") => {
-    await fetch("/api/pec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action,
-        targetTemp: parseInt(targetInput) || 850,
-      }),
-    })
-    fetchData()
-  }
-
-  if (!data) {
-    return (
-      <div className="container">
-        <h1>🔥 Pec Monitor</h1>
-        <div className="loading">Načítání...</div>
-      </div>
-    )
-  }
+  const data = getPecData()
 
   return (
     <div className="container">
@@ -121,8 +79,7 @@ export default function Home() {
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginTop: "1rem", flexWrap: "wrap" }}>
           <input
             type="number"
-            value={targetInput}
-            onChange={(e) => setTargetInput(e.target.value)}
+            defaultValue="850"
             placeholder="Cílová teplota"
             min="100"
             max="1200"
@@ -136,7 +93,6 @@ export default function Home() {
             }}
           />
           <button
-            onClick={() => handleAction("start")}
             style={{
               padding: "0.5rem 1.5rem",
               borderRadius: "6px",
@@ -150,7 +106,6 @@ export default function Home() {
             Start
           </button>
           <button
-            onClick={() => handleAction("stop")}
             style={{
               padding: "0.5rem 1.5rem",
               borderRadius: "6px",
@@ -166,19 +121,16 @@ export default function Home() {
         </div>
       </div>
 
-      {history.length > 0 && (
-        <div className="history">
-          <h2>Historie teplot</h2>
-          <ul>
-            {history.map((entry, i) => (
-              <li key={i}>
-                <span>{entry.temp}°C</span>
-                <span className="time-stamp">{entry.time}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="history">
+        <h2>Historie teplot</h2>
+        <ul>
+          <li><span>847°C</span><span className="time-stamp">14:32:05</span></li>
+          <li><span>845°C</span><span className="time-stamp">14:32:03</span></li>
+          <li><span>842°C</span><span className="time-stamp">14:32:01</span></li>
+          <li><span>838°C</span><span className="time-stamp">14:31:59</span></li>
+          <li><span>833°C</span><span className="time-stamp">14:31:57</span></li>
+        </ul>
+      </div>
 
       <footer>
         Demo Next.js aplikace | Odpověď na diskuzi o &quot;kanónu na vrabce&quot;
@@ -186,3 +138,6 @@ export default function Home() {
     </div>
   )
 }
+
+// API endpoint zůstává v /api/pec/route.ts pro případné budoucí použití
+// ale tato stránka ho nepoužívá - vše se renderuje na serveru
