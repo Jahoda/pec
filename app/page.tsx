@@ -1,13 +1,5 @@
-// Server Component - žádný JS se neposílá klientovi pro tuto část
-// Data se renderují na serveru, klient dostane hotové HTML
-
-interface PecData {
-  currentTemp: number
-  targetTemp: number
-  status: "off" | "heating" | "cooling" | "ready"
-  power: number
-  runningTime: number
-}
+// Server Component s Server Actions - minimální JS
+import { startPec, stopPec, getPecData } from "./actions"
 
 const statusLabels = {
   off: "Vypnuto",
@@ -23,19 +15,17 @@ function formatTime(seconds: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
 }
 
-// Simulovaná data - v reálné aplikaci by přišla z databáze nebo přímo z HW
-function getPecData(): PecData {
-  return {
-    currentTemp: 847,
-    targetTemp: 850,
-    status: "ready",
-    power: 12,
-    runningTime: 3725,
-  }
+const buttonStyle = {
+  padding: "0.5rem 1.5rem",
+  borderRadius: "6px",
+  border: "none",
+  color: "#fff",
+  cursor: "pointer",
+  fontWeight: "bold" as const,
 }
 
-export default function Home() {
-  const data = getPecData()
+export default async function Home() {
+  const data = await getPecData()
 
   return (
     <div className="container">
@@ -77,67 +67,40 @@ export default function Home() {
       <div className="card" style={{ marginBottom: "1.5rem" }}>
         <h2>Ovládání</h2>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginTop: "1rem", flexWrap: "wrap" }}>
-          <input
-            type="number"
-            defaultValue="850"
-            placeholder="Cílová teplota"
-            min="100"
-            max="1200"
-            style={{
-              padding: "0.5rem 1rem",
-              borderRadius: "6px",
-              border: "1px solid #0f3460",
-              background: "#1a1a2e",
-              color: "#eee",
-              width: "120px",
-            }}
-          />
-          <button
-            style={{
-              padding: "0.5rem 1.5rem",
-              borderRadius: "6px",
-              border: "none",
-              background: "#16a34a",
-              color: "#fff",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Start
-          </button>
-          <button
-            style={{
-              padding: "0.5rem 1.5rem",
-              borderRadius: "6px",
-              border: "none",
-              background: "#dc2626",
-              color: "#fff",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Stop
-          </button>
+          <form action={startPec} style={{ display: "flex", gap: "0.5rem" }}>
+            <input
+              type="number"
+              name="targetTemp"
+              defaultValue={data.targetTemp}
+              min="100"
+              max="1200"
+              style={{
+                padding: "0.5rem 1rem",
+                borderRadius: "6px",
+                border: "1px solid #0f3460",
+                background: "#1a1a2e",
+                color: "#eee",
+                width: "120px",
+              }}
+            />
+            <button type="submit" style={{ ...buttonStyle, background: "#16a34a" }}>
+              Start
+            </button>
+          </form>
+          <form action={stopPec}>
+            <button type="submit" style={{ ...buttonStyle, background: "#dc2626" }}>
+              Stop
+            </button>
+          </form>
         </div>
-      </div>
-
-      <div className="history">
-        <h2>Historie teplot</h2>
-        <ul>
-          <li><span>847°C</span><span className="time-stamp">14:32:05</span></li>
-          <li><span>845°C</span><span className="time-stamp">14:32:03</span></li>
-          <li><span>842°C</span><span className="time-stamp">14:32:01</span></li>
-          <li><span>838°C</span><span className="time-stamp">14:31:59</span></li>
-          <li><span>833°C</span><span className="time-stamp">14:31:57</span></li>
-        </ul>
+        <p style={{ textAlign: "center", marginTop: "0.75rem", color: "#888", fontSize: "0.85rem" }}>
+          Stav: {data.isHeating ? "Topení zapnuto" : "Topení vypnuto"}
+        </p>
       </div>
 
       <footer>
-        Demo Next.js aplikace | Odpověď na diskuzi o &quot;kanónu na vrabce&quot;
+        Demo Next.js aplikace | Server Actions bez API calls
       </footer>
     </div>
   )
 }
-
-// API endpoint zůstává v /api/pec/route.ts pro případné budoucí použití
-// ale tato stránka ho nepoužívá - vše se renderuje na serveru
